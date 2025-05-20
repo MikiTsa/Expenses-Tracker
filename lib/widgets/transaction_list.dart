@@ -5,11 +5,13 @@ import 'package:expenses_tracker/models/transaction.dart';
 class TransactionList extends StatelessWidget {
   final List<Transaction> transactions;
   final TransactionType transactionType;
+  final Function(String, TransactionType)? onRemoveTransaction;
 
   const TransactionList({
     super.key,
     required this.transactions,
     required this.transactionType,
+    this.onRemoveTransaction,
   });
 
   // Get type-specific icon and color
@@ -210,18 +212,49 @@ class TransactionList extends StatelessWidget {
 
                 const SizedBox(height: 24),
 
-                // Close button
-                SizedBox(
-                  width: double.infinity,
-                  child: ElevatedButton(
-                    onPressed: () {
-                      Navigator.pop(context);
-                    },
-                    style: ElevatedButton.styleFrom(
-                      padding: const EdgeInsets.symmetric(vertical: 12),
+                // Action buttons
+                Row(
+                  children: [
+                    // Delete button
+                    Expanded(
+                      child: ElevatedButton.icon(
+                        onPressed: () {
+                          if (onRemoveTransaction != null) {
+                            onRemoveTransaction!(
+                              transaction.id,
+                              transactionType,
+                            );
+                            Navigator.pop(context); // Close the details sheet
+                          }
+                        },
+                        icon: const Icon(
+                          Icons.delete_outline,
+                          color: Colors.white,
+                        ),
+                        label: const Text(
+                          'Delete',
+                          style: TextStyle(color: Colors.white),
+                        ),
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: Colors.red,
+                          padding: const EdgeInsets.symmetric(vertical: 12),
+                        ),
+                      ),
                     ),
-                    child: const Text('Close'),
-                  ),
+                    const SizedBox(width: 12),
+                    // Close button
+                    Expanded(
+                      child: ElevatedButton(
+                        onPressed: () {
+                          Navigator.pop(context);
+                        },
+                        style: ElevatedButton.styleFrom(
+                          padding: const EdgeInsets.symmetric(vertical: 12),
+                        ),
+                        child: const Text('Close'),
+                      ),
+                    ),
+                  ],
                 ),
               ],
             ),

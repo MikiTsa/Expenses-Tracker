@@ -69,6 +69,23 @@ class _HomeScreenState extends State<HomeScreen>
     });
   }
 
+  // Remove a transaction
+  void removeTransaction(String id, TransactionType type) {
+    setState(() {
+      switch (type) {
+        case TransactionType.expense:
+          expenses.removeWhere((transaction) => transaction.id == id);
+          break;
+        case TransactionType.income:
+          incomes.removeWhere((transaction) => transaction.id == id);
+          break;
+        case TransactionType.saving:
+          savings.removeWhere((transaction) => transaction.id == id);
+          break;
+      }
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -154,6 +171,7 @@ class _HomeScreenState extends State<HomeScreen>
                               transaction,
                               TransactionType.expense,
                             ),
+                        onRemoveTransaction: removeTransaction,
                       ),
 
                       // Incomes Tab
@@ -164,6 +182,7 @@ class _HomeScreenState extends State<HomeScreen>
                               transaction,
                               TransactionType.income,
                             ),
+                        onRemoveTransaction: removeTransaction,
                       ),
 
                       // Savings Tab
@@ -174,6 +193,7 @@ class _HomeScreenState extends State<HomeScreen>
                               transaction,
                               TransactionType.saving,
                             ),
+                        onRemoveTransaction: removeTransaction,
                       ),
                     ],
                   ),

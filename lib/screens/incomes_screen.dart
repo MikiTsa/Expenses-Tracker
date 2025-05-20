@@ -6,11 +6,13 @@ import 'package:expenses_tracker/widgets/transaction_list.dart';
 class IncomesScreen extends StatelessWidget {
   final List<Transaction> incomes;
   final Function(Transaction) onAddIncome;
+  final Function(String, TransactionType) onRemoveTransaction;
 
   const IncomesScreen({
     super.key,
     required this.incomes,
     required this.onAddIncome,
+    required this.onRemoveTransaction,
   });
 
   @override
@@ -23,6 +25,7 @@ class IncomesScreen extends StatelessWidget {
               : TransactionList(
                 transactions: incomes,
                 transactionType: TransactionType.income,
+                onRemoveTransaction: onRemoveTransaction,
               ),
       floatingActionButton: FloatingActionButton(
         backgroundColor: Colors.green,

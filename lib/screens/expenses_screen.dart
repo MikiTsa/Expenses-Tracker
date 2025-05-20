@@ -6,11 +6,13 @@ import 'package:expenses_tracker/widgets/transaction_list.dart';
 class ExpensesScreen extends StatelessWidget {
   final List<Transaction> expenses;
   final Function(Transaction) onAddExpense;
+  final Function(String, TransactionType) onRemoveTransaction;
 
   const ExpensesScreen({
     super.key,
     required this.expenses,
     required this.onAddExpense,
+    required this.onRemoveTransaction,
   });
 
   @override
@@ -23,6 +25,7 @@ class ExpensesScreen extends StatelessWidget {
               : TransactionList(
                 transactions: expenses,
                 transactionType: TransactionType.expense,
+                onRemoveTransaction: onRemoveTransaction,
               ),
       floatingActionButton: FloatingActionButton(
         backgroundColor: Colors.red,
