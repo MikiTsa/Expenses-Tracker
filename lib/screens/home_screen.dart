@@ -39,11 +39,12 @@ class _HomeScreenState extends State<HomeScreen>
     super.dispose();
   }
 
-  // Calculate current balance based on incomes and expenses
+  // Calculate current balance based on incomes, expenses, and savings
   double get currentBalance {
     double income = incomes.fold(0, (sum, item) => sum + item.amount);
     double expense = expenses.fold(0, (sum, item) => sum + item.amount);
-    return income - expense;
+    double saving = savings.fold(0, (sum, item) => sum + item.amount);
+    return income - expense - saving;
   }
 
   // Calculate total savings
