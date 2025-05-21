@@ -26,6 +26,9 @@ class _TransactionFormState extends State<TransactionForm> {
   String? _selectedCategory;
   DateTime _selectedDate = DateTime.now();
 
+  // Check if we're in edit mode
+  bool get isEditing => widget.initialTransaction != null;
+
   // Get type-specific properties
   Color get _typeColor {
     switch (widget.transactionType) {
@@ -113,7 +116,11 @@ class _TransactionFormState extends State<TransactionForm> {
 
   void _submitForm() {
     if (_formKey.currentState!.validate()) {
-      final newTransaction = Transaction(
+      final transactionData = Transaction(
+        id:
+            isEditing
+                ? widget.initialTransaction!.id
+                : null, // Keep the same ID when editing
         title: _titleController.text.trim(),
         amount: double.parse(_amountController.text),
         date: _selectedDate,
@@ -124,7 +131,7 @@ class _TransactionFormState extends State<TransactionForm> {
                 : null,
       );
 
-      widget.onSave(newTransaction);
+      widget.onSave(transactionData);
       Navigator.pop(context);
     }
   }
@@ -164,7 +171,7 @@ class _TransactionFormState extends State<TransactionForm> {
                 ),
                 const SizedBox(height: 16),
                 Text(
-                  'Add ${_typeTitle}',
+                  '${isEditing ? 'Edit' : 'Add'} $_typeTitle',
                   style: TextStyle(
                     fontSize: 20,
                     fontWeight: FontWeight.bold,
@@ -273,7 +280,7 @@ class _TransactionFormState extends State<TransactionForm> {
                       foregroundColor: Colors.white,
                       padding: const EdgeInsets.symmetric(vertical: 14),
                     ),
-                    child: Text('Save ${_typeTitle}'),
+                    child: Text('${isEditing ? 'Update' : 'Save'} $_typeTitle'),
                   ),
                 ),
                 // Add some extra padding at the bottom to ensure the button is visible

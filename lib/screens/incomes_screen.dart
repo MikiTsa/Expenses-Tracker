@@ -6,12 +6,14 @@ import 'package:expenses_tracker/widgets/transaction_list.dart';
 class IncomesScreen extends StatelessWidget {
   final List<Transaction> incomes;
   final Function(Transaction) onAddIncome;
+  final Function(Transaction) onEditIncome;
   final Function(String, TransactionType) onRemoveTransaction;
 
   const IncomesScreen({
     super.key,
     required this.incomes,
     required this.onAddIncome,
+    required this.onEditIncome,
     required this.onRemoveTransaction,
   });
 
@@ -26,6 +28,8 @@ class IncomesScreen extends StatelessWidget {
                 transactions: incomes,
                 transactionType: TransactionType.income,
                 onRemoveTransaction: onRemoveTransaction,
+                onEditTransaction:
+                    (transaction) => _showEditIncomeForm(context, transaction),
               ),
       floatingActionButton: FloatingActionButton(
         backgroundColor: Colors.green,
@@ -74,6 +78,20 @@ class IncomesScreen extends StatelessWidget {
           (context) => TransactionForm(
             transactionType: TransactionType.income,
             onSave: onAddIncome,
+          ),
+    );
+  }
+
+  void _showEditIncomeForm(BuildContext context, Transaction transaction) {
+    showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      backgroundColor: Colors.transparent,
+      builder:
+          (context) => TransactionForm(
+            transactionType: TransactionType.income,
+            initialTransaction: transaction,
+            onSave: onEditIncome,
           ),
     );
   }

@@ -6,12 +6,14 @@ class TransactionList extends StatelessWidget {
   final List<Transaction> transactions;
   final TransactionType transactionType;
   final Function(String, TransactionType)? onRemoveTransaction;
+  final Function(Transaction)? onEditTransaction;
 
   const TransactionList({
     super.key,
     required this.transactions,
     required this.transactionType,
     this.onRemoveTransaction,
+    this.onEditTransaction,
   });
 
   // Get type-specific icon and color
@@ -241,7 +243,35 @@ class TransactionList extends StatelessWidget {
                         ),
                       ),
                     ),
-                    const SizedBox(width: 12),
+                    const SizedBox(width: 8),
+
+                    // Edit button (NEW)
+                    Expanded(
+                      child: ElevatedButton.icon(
+                        onPressed: () {
+                          Navigator.pop(
+                            context,
+                          ); // Close the details sheet first
+                          if (onEditTransaction != null) {
+                            onEditTransaction!(transaction);
+                          }
+                        },
+                        icon: const Icon(
+                          Icons.edit_outlined,
+                          color: Colors.white,
+                        ),
+                        label: const Text(
+                          'Edit',
+                          style: TextStyle(color: Colors.white),
+                        ),
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: typeColor,
+                          padding: const EdgeInsets.symmetric(vertical: 12),
+                        ),
+                      ),
+                    ),
+                    const SizedBox(width: 8),
+
                     // Close button
                     Expanded(
                       child: ElevatedButton(

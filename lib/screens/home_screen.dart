@@ -69,6 +69,38 @@ class _HomeScreenState extends State<HomeScreen>
     });
   }
 
+  // Edit existing transaction
+  void editTransaction(Transaction updatedTransaction, TransactionType type) {
+    setState(() {
+      switch (type) {
+        case TransactionType.expense:
+          final index = expenses.indexWhere(
+            (t) => t.id == updatedTransaction.id,
+          );
+          if (index != -1) {
+            expenses[index] = updatedTransaction;
+          }
+          break;
+        case TransactionType.income:
+          final index = incomes.indexWhere(
+            (t) => t.id == updatedTransaction.id,
+          );
+          if (index != -1) {
+            incomes[index] = updatedTransaction;
+          }
+          break;
+        case TransactionType.saving:
+          final index = savings.indexWhere(
+            (t) => t.id == updatedTransaction.id,
+          );
+          if (index != -1) {
+            savings[index] = updatedTransaction;
+          }
+          break;
+      }
+    });
+  }
+
   // Remove a transaction
   void removeTransaction(String id, TransactionType type) {
     setState(() {
@@ -171,6 +203,11 @@ class _HomeScreenState extends State<HomeScreen>
                               transaction,
                               TransactionType.expense,
                             ),
+                        onEditExpense:
+                            (transaction) => editTransaction(
+                              transaction,
+                              TransactionType.expense,
+                            ),
                         onRemoveTransaction: removeTransaction,
                       ),
 
@@ -182,6 +219,11 @@ class _HomeScreenState extends State<HomeScreen>
                               transaction,
                               TransactionType.income,
                             ),
+                        onEditIncome:
+                            (transaction) => editTransaction(
+                              transaction,
+                              TransactionType.income,
+                            ),
                         onRemoveTransaction: removeTransaction,
                       ),
 
@@ -190,6 +232,11 @@ class _HomeScreenState extends State<HomeScreen>
                         savings: savings,
                         onAddSaving:
                             (transaction) => addTransaction(
+                              transaction,
+                              TransactionType.saving,
+                            ),
+                        onEditSaving:
+                            (transaction) => editTransaction(
                               transaction,
                               TransactionType.saving,
                             ),

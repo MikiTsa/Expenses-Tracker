@@ -6,12 +6,14 @@ import 'package:expenses_tracker/widgets/transaction_list.dart';
 class SavingsScreen extends StatelessWidget {
   final List<Transaction> savings;
   final Function(Transaction) onAddSaving;
+  final Function(Transaction) onEditSaving;
   final Function(String, TransactionType) onRemoveTransaction;
 
   const SavingsScreen({
     super.key,
     required this.savings,
     required this.onAddSaving,
+    required this.onEditSaving,
     required this.onRemoveTransaction,
   });
 
@@ -26,6 +28,8 @@ class SavingsScreen extends StatelessWidget {
                 transactions: savings,
                 transactionType: TransactionType.saving,
                 onRemoveTransaction: onRemoveTransaction,
+                onEditTransaction:
+                    (transaction) => _showEditSavingForm(context, transaction),
               ),
       floatingActionButton: FloatingActionButton(
         backgroundColor: Colors.amber,
@@ -70,6 +74,20 @@ class SavingsScreen extends StatelessWidget {
           (context) => TransactionForm(
             transactionType: TransactionType.saving,
             onSave: onAddSaving,
+          ),
+    );
+  }
+
+  void _showEditSavingForm(BuildContext context, Transaction transaction) {
+    showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      backgroundColor: Colors.transparent,
+      builder:
+          (context) => TransactionForm(
+            transactionType: TransactionType.saving,
+            initialTransaction: transaction,
+            onSave: onEditSaving,
           ),
     );
   }
