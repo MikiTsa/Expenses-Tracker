@@ -52,3 +52,20 @@ class MyApp extends StatelessWidget {
     );
   }
 }
+
+
+/*  TO DO: 
+      - EDIT 
+      - CATEGORIES sredi gi
+      - PIXELS screenshotot
+      - SIDEBAR tab 
+        * HISTORY with filters
+        * SETTINGS
+        * PROFILE?
+        * TRACKER SELECT
+      - make everything be in a special tab that the user can 
+        select at the 
+      - SQL for the transactions
+      - NOTIF google pay
+      - LOGIN? 
+*/ 
