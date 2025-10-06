@@ -21,10 +21,10 @@ class MyApp extends StatelessWidget {
           primary: Colors.deepPurple,
           secondary: Colors.amberAccent,
           surface: Colors.white,
-          background: Colors.grey[50],
+          surfaceDim: Colors.grey[50],
         ),
         // Use rounded corners and smooth edges throughout the app
-        cardTheme: CardTheme(
+        cardTheme: CardThemeData(
           elevation: 4,
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(16),
@@ -55,16 +55,16 @@ class MyApp extends StatelessWidget {
 
 
 /*  TO DO: 
-      - EDIT 
+      - EDIT  *done
       - CATEGORIES sredi gi
-      - PIXELS screenshotot
+      - PIXELS screenshotot   *done
       - SIDEBAR tab 
         * HISTORY with filters
         * SETTINGS
         * PROFILE?
         * TRACKER SELECT
       - make everything be in a special tab that the user can 
-        select at the 
+        select at the main menu screen
       - SQL for the transactions
       - NOTIF google pay
       - LOGIN? 
