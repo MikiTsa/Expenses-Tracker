@@ -58,19 +58,21 @@ class _TransactionFormState extends State<TransactionForm> {
         return [
           'Food',
           'Transport',
+          'Groceries',
+          'Fixed Expenses',
           'Entertainment',
+          'Gifts',
           'Shopping',
-          'Bills',
           'Other',
         ];
       case TransactionType.income:
-        return ['Salary', 'Freelance', 'Gift', 'Investment', 'Other'];
+        return ['Salary', 'Parents', 'Gift', 'Investment', 'Other'];
       case TransactionType.saving:
         return [
           'Emergency Fund',
-          'Retirement',
-          'Vacation',
           'Education',
+          'Vacation',
+          'Gifts',
           'Home',
           'Other',
         ];
@@ -238,7 +240,7 @@ class _TransactionFormState extends State<TransactionForm> {
 
                 // Category Dropdown
                 DropdownButtonFormField<String>(
-                  value: _selectedCategory,
+                  initialValue: _selectedCategory,
                   decoration: const InputDecoration(
                     labelText: 'Category',
                     prefixIcon: Icon(Icons.category),

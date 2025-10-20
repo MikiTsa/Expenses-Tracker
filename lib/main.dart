@@ -56,8 +56,9 @@ class MyApp extends StatelessWidget {
 
 /*  TO DO: 
       - EDIT  *done
-      - CATEGORIES sredi gi
+      - CATEGORIES sredi gi   *done
       - PIXELS screenshotot   *done
+      - FIREBASE integration
       - SIDEBAR tab 
         * HISTORY with filters
         * SETTINGS
