@@ -5,6 +5,7 @@ import 'package:expenses_tracker/screens/incomes_screen.dart';
 import 'package:expenses_tracker/screens/savings_screen.dart';
 import 'package:expenses_tracker/widgets/balance_box.dart';
 import 'package:expenses_tracker/services/firebase_service.dart';
+import 'package:expenses_tracker/services/auth_service.dart'; // 🔥 NEW
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -17,6 +18,7 @@ class _HomeScreenState extends State<HomeScreen>
     with SingleTickerProviderStateMixin {
   late TabController _tabController;
   final FirebaseService _firebaseService = FirebaseService();
+  final AuthService _authService = AuthService(); // 🔥 NEW
 
   // These will now be populated from Firebase streams
   List<Transaction> expenses = [];
@@ -129,6 +131,37 @@ class _HomeScreenState extends State<HomeScreen>
     );
   }
 
+  // 🔥 NEW: Logout function
+  Future<void> _handleLogout() async {
+    final shouldLogout = await showDialog<bool>(
+      context: context,
+      builder:
+          (context) => AlertDialog(
+            title: const Text('Logout'),
+            content: const Text('Are you sure you want to logout?'),
+            actions: [
+              TextButton(
+                onPressed: () => Navigator.pop(context, false),
+                child: const Text('Cancel'),
+              ),
+              TextButton(
+                onPressed: () => Navigator.pop(context, true),
+                style: TextButton.styleFrom(foregroundColor: Colors.red),
+                child: const Text('Logout'),
+              ),
+            ],
+          ),
+    );
+
+    if (shouldLogout == true) {
+      try {
+        await _authService.signOut();
+      } catch (e) {
+        _showErrorSnackBar('Failed to logout');
+      }
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -155,13 +188,25 @@ class _HomeScreenState extends State<HomeScreen>
                   ),
                   child: Column(
                     children: [
-                      // Title
-                      const Text(
-                        'Expenses Tracker',
-                        style: TextStyle(
-                          fontSize: 22,
-                          fontWeight: FontWeight.bold,
-                        ),
+                      // 🔥 UPDATED: Title Row with Logout Button
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          const SizedBox(width: 48), // Spacer for balance
+                          const Text(
+                            'Expenses Tracker',
+                            style: TextStyle(
+                              fontSize: 22,
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
+                          IconButton(
+                            onPressed: _handleLogout,
+                            icon: const Icon(Icons.logout),
+                            tooltip: 'Logout',
+                            color: Colors.red[400],
+                          ),
+                        ],
                       ),
                       const SizedBox(height: 16),
                       // Tab Bar with color-coded tabs

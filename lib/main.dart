@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:expenses_tracker/screens/home_screen.dart';
+import 'package:expenses_tracker/screens/auth/auth_wrapper.dart'; // 🔥 NEW
 import 'package:firebase_core/firebase_core.dart';
 import 'firebase_options.dart';
 
@@ -56,7 +56,7 @@ class MyApp extends StatelessWidget {
         // Use a modern font and styling
         useMaterial3: true,
       ),
-      home: const HomeScreen(),
+      home: const AuthWrapper(), // 🔥 CHANGED: Now uses AuthWrapper
     );
   }
 }
