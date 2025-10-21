@@ -4,6 +4,7 @@ import 'package:expenses_tracker/screens/expenses_screen.dart';
 import 'package:expenses_tracker/screens/incomes_screen.dart';
 import 'package:expenses_tracker/screens/savings_screen.dart';
 import 'package:expenses_tracker/widgets/balance_box.dart';
+import 'package:expenses_tracker/services/firebase_service.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -15,6 +16,9 @@ class HomeScreen extends StatefulWidget {
 class _HomeScreenState extends State<HomeScreen>
     with SingleTickerProviderStateMixin {
   late TabController _tabController;
+  final FirebaseService _firebaseService = FirebaseService();
+
+  // These will now be populated from Firebase streams
   List<Transaction> expenses = [];
   List<Transaction> incomes = [];
   List<Transaction> savings = [];
@@ -24,12 +28,43 @@ class _HomeScreenState extends State<HomeScreen>
     super.initState();
     _tabController = TabController(length: 3, vsync: this);
 
-    // Listen for tab changes to update the state
     _tabController.addListener(() {
-      // Force rebuild when tab changes (to update balance display)
       if (!_tabController.indexIsChanging) {
         setState(() {});
       }
+    });
+
+    // Listen to Firebase streams
+    _setupFirebaseListeners();
+  }
+
+  // Setup real-time listeners for all transaction types
+  void _setupFirebaseListeners() {
+    // Listen to expenses
+    _firebaseService.getTransactionsStream(TransactionType.expense).listen((
+      transactions,
+    ) {
+      setState(() {
+        expenses = transactions;
+      });
+    });
+
+    // Listen to incomes
+    _firebaseService.getTransactionsStream(TransactionType.income).listen((
+      transactions,
+    ) {
+      setState(() {
+        incomes = transactions;
+      });
+    });
+
+    // Listen to savings
+    _firebaseService.getTransactionsStream(TransactionType.saving).listen((
+      transactions,
+    ) {
+      setState(() {
+        savings = transactions;
+      });
     });
   }
 
@@ -52,70 +87,46 @@ class _HomeScreenState extends State<HomeScreen>
     return savings.fold(0, (sum, item) => sum + item.amount);
   }
 
-  // Add new transaction of appropriate type
-  void addTransaction(Transaction transaction, TransactionType type) {
-    setState(() {
-      switch (type) {
-        case TransactionType.expense:
-          expenses.add(transaction);
-          break;
-        case TransactionType.income:
-          incomes.add(transaction);
-          break;
-        case TransactionType.saving:
-          savings.add(transaction);
-          break;
-      }
-    });
+  // Add transaction to Firebase
+  Future<void> addTransaction(
+    Transaction transaction,
+    TransactionType type,
+  ) async {
+    try {
+      await _firebaseService.addTransaction(transaction, type);
+      // No need to call setState - the stream listener will update automatically
+    } catch (e) {
+      _showErrorSnackBar('Failed to add transaction');
+    }
   }
 
-  // Edit existing transaction
-  void editTransaction(Transaction updatedTransaction, TransactionType type) {
-    setState(() {
-      switch (type) {
-        case TransactionType.expense:
-          final index = expenses.indexWhere(
-            (t) => t.id == updatedTransaction.id,
-          );
-          if (index != -1) {
-            expenses[index] = updatedTransaction;
-          }
-          break;
-        case TransactionType.income:
-          final index = incomes.indexWhere(
-            (t) => t.id == updatedTransaction.id,
-          );
-          if (index != -1) {
-            incomes[index] = updatedTransaction;
-          }
-          break;
-        case TransactionType.saving:
-          final index = savings.indexWhere(
-            (t) => t.id == updatedTransaction.id,
-          );
-          if (index != -1) {
-            savings[index] = updatedTransaction;
-          }
-          break;
-      }
-    });
+  // Edit transaction in Firebase
+  Future<void> editTransaction(
+    Transaction updatedTransaction,
+    TransactionType type,
+  ) async {
+    try {
+      await _firebaseService.updateTransaction(updatedTransaction, type);
+      // No need to call setState - the stream listener will update automatically
+    } catch (e) {
+      _showErrorSnackBar('Failed to update transaction');
+    }
   }
 
-  // Remove a transaction
-  void removeTransaction(String id, TransactionType type) {
-    setState(() {
-      switch (type) {
-        case TransactionType.expense:
-          expenses.removeWhere((transaction) => transaction.id == id);
-          break;
-        case TransactionType.income:
-          incomes.removeWhere((transaction) => transaction.id == id);
-          break;
-        case TransactionType.saving:
-          savings.removeWhere((transaction) => transaction.id == id);
-          break;
-      }
-    });
+  // Remove transaction from Firebase
+  Future<void> removeTransaction(String id, TransactionType type) async {
+    try {
+      await _firebaseService.deleteTransaction(id, type);
+      // No need to call setState - the stream listener will update automatically
+    } catch (e) {
+      _showErrorSnackBar('Failed to delete transaction');
+    }
+  }
+
+  void _showErrorSnackBar(String message) {
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(content: Text(message), backgroundColor: Colors.red),
+    );
   }
 
   @override
@@ -126,7 +137,7 @@ class _HomeScreenState extends State<HomeScreen>
           children: [
             Column(
               children: [
-                // Custom App Bar with our tab bar
+                // Custom App Bar with title and tab bar
                 Container(
                   padding: const EdgeInsets.symmetric(
                     vertical: 16,
@@ -144,6 +155,7 @@ class _HomeScreenState extends State<HomeScreen>
                   ),
                   child: Column(
                     children: [
+                      // Title
                       const Text(
                         'Expenses Tracker',
                         style: TextStyle(
@@ -152,6 +164,7 @@ class _HomeScreenState extends State<HomeScreen>
                         ),
                       ),
                       const SizedBox(height: 16),
+                      // Tab Bar with color-coded tabs
                       TabBar(
                         controller: _tabController,
                         indicatorWeight: 3,
@@ -248,7 +261,7 @@ class _HomeScreenState extends State<HomeScreen>
               ],
             ),
 
-            // Floating balance box - now positioned on the left side
+            // Floating balance box - positioned on the left side
             Positioned(
               left: 16,
               bottom: 20,

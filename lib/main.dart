@@ -1,7 +1,15 @@
 import 'package:flutter/material.dart';
 import 'package:expenses_tracker/screens/home_screen.dart';
+import 'package:firebase_core/firebase_core.dart';
+import 'firebase_options.dart';
 
-void main() {
+void main() async {
+  // Ensure Flutter is initialized
+  WidgetsFlutterBinding.ensureInitialized();
+
+  // Initialize Firebase
+  await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
+
   runApp(const MyApp());
 }
 
@@ -53,7 +61,6 @@ class MyApp extends StatelessWidget {
   }
 }
 
-
 /*  TO DO: 
       - EDIT  *done
       - CATEGORIES sredi gi   *done
@@ -69,4 +76,4 @@ class MyApp extends StatelessWidget {
       - SQL for the transactions
       - NOTIF google pay
       - LOGIN? 
-*/ 
+*/
