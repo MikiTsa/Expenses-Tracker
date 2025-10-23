@@ -1,17 +1,41 @@
 import 'package:cloud_firestore/cloud_firestore.dart' hide Transaction;
 import 'package:expenses_tracker/models/transaction.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 
 class FirebaseService {
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
+  final FirebaseAuth _auth = FirebaseAuth.instance;
 
-  // Collection references for each transaction type
-  CollectionReference get expensesCollection =>
-      _firestore.collection('expenses');
-  CollectionReference get incomesCollection => _firestore.collection('incomes');
-  CollectionReference get savingsCollection => _firestore.collection('savings');
+  // Get current user ID
+  String? get _currentUserId => _auth.currentUser?.uid;
+
+  // Collection references for each transaction type (USER-SPECIFIC)
+  CollectionReference? get expensesCollection {
+    if (_currentUserId == null) return null;
+    return _firestore
+        .collection('users')
+        .doc(_currentUserId)
+        .collection('expenses');
+  }
+
+  CollectionReference? get incomesCollection {
+    if (_currentUserId == null) return null;
+    return _firestore
+        .collection('users')
+        .doc(_currentUserId)
+        .collection('incomes');
+  }
+
+  CollectionReference? get savingsCollection {
+    if (_currentUserId == null) return null;
+    return _firestore
+        .collection('users')
+        .doc(_currentUserId)
+        .collection('savings');
+  }
 
   // Get the correct collection based on transaction type
-  CollectionReference _getCollection(TransactionType type) {
+  CollectionReference? _getCollection(TransactionType type) {
     switch (type) {
       case TransactionType.expense:
         return expensesCollection;
@@ -28,7 +52,16 @@ class FirebaseService {
     TransactionType type,
   ) async {
     try {
-      await _getCollection(type).doc(transaction.id).set(transaction.toMap());
+      if (_currentUserId == null) {
+        throw Exception('User not authenticated');
+      }
+
+      final collection = _getCollection(type);
+      if (collection == null) {
+        throw Exception('Failed to get collection');
+      }
+
+      await collection.doc(transaction.id).set(transaction.toMap());
     } catch (e) {
       print('Error adding transaction: $e');
       rethrow;
@@ -41,9 +74,16 @@ class FirebaseService {
     TransactionType type,
   ) async {
     try {
-      await _getCollection(
-        type,
-      ).doc(transaction.id).update(transaction.toMap());
+      if (_currentUserId == null) {
+        throw Exception('User not authenticated');
+      }
+
+      final collection = _getCollection(type);
+      if (collection == null) {
+        throw Exception('Failed to get collection');
+      }
+
+      await collection.doc(transaction.id).update(transaction.toMap());
     } catch (e) {
       print('Error updating transaction: $e');
       rethrow;
@@ -53,7 +93,16 @@ class FirebaseService {
   // Delete a transaction
   Future<void> deleteTransaction(String id, TransactionType type) async {
     try {
-      await _getCollection(type).doc(id).delete();
+      if (_currentUserId == null) {
+        throw Exception('User not authenticated');
+      }
+
+      final collection = _getCollection(type);
+      if (collection == null) {
+        throw Exception('Failed to get collection');
+      }
+
+      await collection.doc(id).delete();
     } catch (e) {
       print('Error deleting transaction: $e');
       rethrow;
@@ -62,7 +111,16 @@ class FirebaseService {
 
   // Get all transactions of a specific type as a stream
   Stream<List<Transaction>> getTransactionsStream(TransactionType type) {
-    return _getCollection(type).snapshots().map((snapshot) {
+    if (_currentUserId == null) {
+      return Stream.value([]); // Return empty stream if not authenticated
+    }
+
+    final collection = _getCollection(type);
+    if (collection == null) {
+      return Stream.value([]);
+    }
+
+    return collection.snapshots().map((snapshot) {
       return snapshot.docs
           .map((doc) => Transaction.fromFirestore(doc))
           .toList();
@@ -72,7 +130,16 @@ class FirebaseService {
   // Get all transactions of a specific type (one-time fetch)
   Future<List<Transaction>> getTransactions(TransactionType type) async {
     try {
-      final snapshot = await _getCollection(type).get();
+      if (_currentUserId == null) {
+        return [];
+      }
+
+      final collection = _getCollection(type);
+      if (collection == null) {
+        return [];
+      }
+
+      final snapshot = await collection.get();
       return snapshot.docs
           .map((doc) => Transaction.fromFirestore(doc))
           .toList();
